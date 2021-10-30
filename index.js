@@ -36,13 +36,12 @@ async function run() {
 
     //Get Single Request-------------------------
     app.get('/packages/:id', async (req, res) => {
-
       const id = req.params.id;
-     
+
       const query = { _id: ObjectId(id) };
-      
+
       const dBsinglePackage = await packageCollection.findOne(query);
-      console.log(dBsinglePackage);
+
       res.json(dBsinglePackage);
     });
 
@@ -51,6 +50,14 @@ async function run() {
       const order = req.body;
       const result = await orderCollection.insertOne(order);
       res.json(result);
+    });
+
+    //Insert Single Package ----------
+
+    app.post('/packages', async (req, res) => {
+      const newPackage = req.body;
+    const result = await packageCollection.insertOne(newPackage)
+      res.send(result);
     });
 
     //particular user orders
@@ -68,6 +75,36 @@ async function run() {
       res.send(allOrders);
     });
 
+    // Update Status  -----------
+    app.put('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const updatestatus = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          status: updatestatus.status,
+        },
+      };
+      const result = await orderCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      console.log(updatestatus);
+      res.json(result);
+    });
+
+    // Delete a order
+
+    app.delete('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      console.log(query);
+      const result = await orderCollection.deleteOne(query);
+      console.log('deleting user with id ', result);
+      res.json(result);
+    });
   } finally {
   }
 }
